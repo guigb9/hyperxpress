@@ -1,7 +1,8 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control;
 
-import com.bandtec.hyperxpress.hyperxpressproject.model.*;
-import com.bandtec.hyperxpress.hyperxpressproject.repository.*;
+import com.bandtec.hyperxpress.hyperxpressproject.control.controller.ProdutoController;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.*;
+import com.bandtec.hyperxpress.hyperxpressproject.model.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

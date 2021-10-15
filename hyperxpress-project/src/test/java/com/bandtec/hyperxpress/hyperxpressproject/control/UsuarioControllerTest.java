@@ -1,11 +1,12 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control;
 
-import com.bandtec.hyperxpress.hyperxpressproject.model.Endereco;
-import com.bandtec.hyperxpress.hyperxpressproject.model.Usuario;
-import com.bandtec.hyperxpress.hyperxpressproject.repository.EnderecoRepository;
-import com.bandtec.hyperxpress.hyperxpressproject.repository.UsuarioRepository;
-import com.bandtec.hyperxpress.hyperxpressproject.responses.adapter.Login;
-import com.bandtec.hyperxpress.hyperxpressproject.view.CadastroUsuarioDTO;
+import com.bandtec.hyperxpress.hyperxpressproject.control.controller.UsuarioController;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Endereco;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Usuario;
+import com.bandtec.hyperxpress.hyperxpressproject.model.repository.EnderecoRepository;
+import com.bandtec.hyperxpress.hyperxpressproject.model.repository.UsuarioRepository;
+import com.bandtec.hyperxpress.hyperxpressproject.view.adapter.Login;
+import com.bandtec.hyperxpress.hyperxpressproject.view.dto.CadastroUsuarioDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

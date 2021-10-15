@@ -1,9 +1,10 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control;
 
-import com.bandtec.hyperxpress.hyperxpressproject.model.Categoria;
-import com.bandtec.hyperxpress.hyperxpressproject.model.Produto;
-import com.bandtec.hyperxpress.hyperxpressproject.model.SubCategoria;
-import com.bandtec.hyperxpress.hyperxpressproject.model.Usuario;
+import com.bandtec.hyperxpress.hyperxpressproject.control.controller.CarrinhoController;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Categoria;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Produto;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.SubCategoria;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
