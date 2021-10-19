@@ -6,10 +6,10 @@ import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Usuario;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.ProductScreenDTO;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +27,10 @@ public class ProductScreenViewController {
     @GetMapping
     public List<ProductScreenDTO> get() {
         List<Produto> produtos = productService.getProdutosAtivosNoDTO();
-        List<ProductScreenDTO> listaProdutos = produtos.stream().map(p -> toProductScreenDTO(p, p.getCodigoUsuarioProd())).collect(Collectors.toList());
-        return listaProdutos;
+        return produtos
+                .stream()
+                .map(p -> toProductScreenDTO(p, p.getCodigoUsuarioProd()))
+                .collect(Collectors.toList());
     }
 
     public ProductScreenDTO toProductScreenDTO(Produto produto, Usuario usuario) {
