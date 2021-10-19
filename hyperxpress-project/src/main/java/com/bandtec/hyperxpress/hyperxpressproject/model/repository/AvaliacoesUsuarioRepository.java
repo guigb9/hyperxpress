@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface AvaliacoesUsuarioRepository extends JpaRepository<AvaliacoesUsuario, Long> {
+
+
     List<AvaliacoesUsuario> findByUsuarioAvaliadoId(Long idUsuario);
 
     @Query(value = "select AVG(Estrelas) from avaliacoes_usuario where usuario_avaliado_id = ?1", nativeQuery = true)

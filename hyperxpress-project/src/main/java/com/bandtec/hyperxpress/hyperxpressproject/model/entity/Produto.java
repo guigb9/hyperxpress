@@ -11,8 +11,9 @@ import javax.validation.constraints.Size;
 @Entity
 public class Produto {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idProduto;
 
     @NotBlank
     @Size(min = 3, max = 100)
@@ -60,7 +61,7 @@ public class Produto {
                     String tecido,
                     String marca) {
 
-        this.id = id;
+        this.idProduto = id;
         this.nomeProduto = nomeProduto;
         this.descricaoProduto = descricaoProduto;
         this.precoProduto = precoProduto;
@@ -127,12 +128,12 @@ public class Produto {
     @Length(min = 1, max = 35)
     private String marca;
 
-    public Long getId() {
-        return id;
+    public Long getIdProduto() {
+        return idProduto;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdProduto(Long id) {
+        this.idProduto = id;
     }
 
     public String getNomeProduto() {

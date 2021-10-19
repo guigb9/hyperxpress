@@ -45,7 +45,7 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
    List<Produto> findBySubCategoriaCodigoCategoriaNomeCategoria(String nomeCategoria);
 
-   List<Produto> findByStatusProdutoAndId(String statusProduto,Long idProduto);
+   List<Produto> findByStatusProdutoAndIdProduto(String statusProduto, Long idProduto);
 
    @Query("SELECT p FROM Produto p INNER JOIN SubCategoria s ON s.id = p.subCategoria.id INNER JOIN Categoria c " +
            "ON c.id = s.codigoCategoria.id WHERE (:nomeProduto is null or p.nomeProduto like %:nomeProduto%) and " +

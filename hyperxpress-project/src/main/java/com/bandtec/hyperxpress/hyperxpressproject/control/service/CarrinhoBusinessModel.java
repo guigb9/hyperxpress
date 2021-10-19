@@ -33,7 +33,7 @@ public class CarrinhoBusinessModel implements CarrinhosInterface{
     }
 
     public boolean verificarSeEstaNoCarrinho(Long idProduto, Long idUsuario){
-        return carrinhoRepository.findByProdutoAssociadoIdAndUsuarioAdicionouId(idProduto, idUsuario).isEmpty();
+        return carrinhoRepository.findByProdutoAssociadoIdProdutoAndUsuarioAdicionouId(idProduto, idUsuario).isEmpty();
     }
 
     public void adicionarAoCarrinho(Produto produto, Usuario usuario){
@@ -44,7 +44,7 @@ public class CarrinhoBusinessModel implements CarrinhosInterface{
     }
 
     public List<Carrinho> pegarItensCarrinho(long idProduto){
-        return carrinhoRepository.findByProdutoAssociadoId(idProduto);
+        return carrinhoRepository.findByProdutoAssociadoIdProduto(idProduto);
     }
 
     public void salvarCarrinho(Carrinho c){
@@ -67,7 +67,7 @@ public class CarrinhoBusinessModel implements CarrinhosInterface{
     }
 
     public Carrinho pegarProduto(Long idProduto, Long idUsuario){
-        return carrinhoRepository.findByProdutoAssociadoIdAndUsuarioAdicionouId(idProduto, idUsuario).get(0);
+        return carrinhoRepository.findByProdutoAssociadoIdProdutoAndUsuarioAdicionouId(idProduto, idUsuario).get(0);
     }
 
     public void desvincularProdutoDoCarrinho(Carrinho produto){

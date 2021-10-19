@@ -1,5 +1,6 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.service;
 
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.interfaces.MappingToProdutoGeralDTO;
 import com.bandtec.hyperxpress.hyperxpressproject.control.service.interfaces.ProdutosInterface;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.ImagemProduto;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Produto;
@@ -19,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ProdutoBusinessModel implements ProdutosInterface {
+public class ProdutoBusinessModel implements ProdutosInterface, MappingToProdutoGeralDTO {
     private static final String STATUS_ATIVO = "ativo";
     private static final String STATUS_INATIVO = "inativo";
     private static final String STATUS_PEDIDO_EM_ANDAMENTO = "pedido-em-andamento";
@@ -47,9 +48,17 @@ public class ProdutoBusinessModel implements ProdutosInterface {
                 .collect(Collectors.toList());
     }
 
+    public List<Produto> getProdutosAtivosNoDTO() {
+        return produtoRepository.findByStatusProduto(STATUS_ATIVO);
+    }
+
+
+
     public ProdutoGeralDTO toProdutoGeralDTO(Produto produto){
         return modelMapper.map(produto, ProdutoGeralDTO.class);
     }
+
+
 
     public Produto pesquisarUnicoProduto(Long idProduto) {
         return produtoRepository.findById(idProduto).orElse(null);
@@ -233,7 +242,7 @@ public class ProdutoBusinessModel implements ProdutosInterface {
                     setarInfoProdutoParaExclusao(p.get());
                     imagensBusinessModel.atribuirImagensProduto(imagens, null);
                     salvarProduto(p.get());
-                    deletarProdutoPeloId(p.get().getId());
+                    deletarProdutoPeloId(p.get().getIdProduto());
 
                     return "removeu";
                 }

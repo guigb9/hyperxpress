@@ -86,7 +86,7 @@ public class ProdutoController {
         Usuario usuario = usuarioBusinessModel.procurarUsuarioPeloId(produto.getCodigoUsuarioProd().getId());
         if(usuario != null && subCategoriaBusinessModel.verificarSubcategoriaExiste(produto.getSubCategoria().getId())){
             produtoBusinessModel.salvarProduto(produto);
-            return status(201).body(produto.getId());
+            return status(201).body(produto.getIdProduto());
         }
         return status(204).body("Usuário ou subCategoria não existem");
     }

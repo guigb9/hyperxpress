@@ -85,7 +85,7 @@ public class ImagensBusinessModel {
     }
 
     public List<ImagemProduto> pegarImagensProdutoAssociado(long idProduto){
-        return repositoryImagemProduto.findByProdutoAssociadoId(idProduto);
+        return repositoryImagemProduto.findByProdutoAssociadoIdProduto(idProduto);
     }
 
     public void salvarImagem(ImagemUsuario imagemProduto){
@@ -98,7 +98,7 @@ public class ImagensBusinessModel {
     }
 
     public int quantidadeImagensAssociadaAoProduto(long idProduto){
-        return repositoryImagemProduto.countByProdutoAssociadoId(idProduto);
+        return repositoryImagemProduto.countByProdutoAssociadoIdProduto(idProduto);
     }
 
     public List<ImagemUsuario> imagemUsuarioAssociado(long id){
@@ -106,7 +106,7 @@ public class ImagensBusinessModel {
     }
 
     public void removerTodasImagensDoProduto(Long idProduto){
-        List<ImagemProduto> imagem1 = repositoryImagemProduto.findByProdutoAssociadoId(idProduto);
+        List<ImagemProduto> imagem1 = repositoryImagemProduto.findByProdutoAssociadoIdProduto(idProduto);
         imagem1.forEach(i -> {
             setandoprodutoAssociadoComoNulo(i);
             repositoryImagemProduto.deleteById(i.getId());
@@ -126,7 +126,7 @@ public class ImagensBusinessModel {
     }
 
     public boolean contarSePossuiQuatroImagens(Long idProduto){
-        return repositoryImagemProduto.countByProdutoAssociadoId(idProduto) >= 4;
+        return repositoryImagemProduto.countByProdutoAssociadoIdProduto(idProduto) >= 4;
     }
 
 }

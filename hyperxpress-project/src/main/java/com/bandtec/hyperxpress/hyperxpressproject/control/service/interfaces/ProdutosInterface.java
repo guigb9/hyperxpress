@@ -21,6 +21,4 @@ public interface ProdutosInterface {
     public String removeProduto(Long idProduto,String email);
     public ImagemProduto pegarImagem(long id, int imagemEspecifica);
     public void deletarImagemPeloId(Long id);
-    public ProdutoGeralDTO toProdutoGeralDTO(Produto produto);
-
 }

@@ -10,7 +10,6 @@ import com.bandtec.hyperxpress.hyperxpressproject.view.adapter.ItemPedido;
 import com.bandtec.hyperxpress.hyperxpressproject.view.adapter.PedidoReturn;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.PedidoDTO;
 import com.bandtec.hyperxpress.hyperxpressproject.configuration.FreteConfig;
-import com.bandtec.hyperxpress.hyperxpressproject.tools.pagamento.Pagamentos;
 import com.mercadopago.exceptions.MPException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,37 +156,37 @@ public class PedidoBusinessModel implements PedidosInterface {
 
     public PedidoReturn pagarPedido(String cep, Long codigoPedido){
 
-        if(verificarPedidoPresente(codigoPedido) != null){
-            Pedido pedido = verificarPedidoPresente(codigoPedido);
-            List<Produto> listaCarrinho = produtoService.produtosNoPedido(codigoPedido);
-            double valorTotal;
-            double somaProduto;
-
-            AtomicReference<Double> valorFrete = new AtomicReference<>(0.0);
-            String initPoint;
-            AtomicReference<Integer> cont = new AtomicReference<>(0);
-
-            somaProduto = pedido.getValorTotal();
-
-            somarFretePorProduto(cep, listaCarrinho, valorFrete, cont);
-
-            valorTotal = somaProduto + valorFrete.get();
-
-            PedidoReturn returnPedido = new PedidoReturn();
-            try {
-                ItemPedido itemPedido = new ItemPedido("HyperXpress Produtos",
-                        valorTotal,1);
-
-                Pagamentos pagamento = new Pagamentos();
-                initPoint = pagamento.postItem(itemPedido);
-
-            }catch (MPException e){
-                System.err.println(e.getMessage());
-                return null;
-            }
-
-            return setarInformacoesFinais(returnPedido, pedido, initPoint, valorFrete, valorTotal);
-        }
+//        if(verificarPedidoPresente(codigoPedido) != null){
+//            Pedido pedido = verificarPedidoPresente(codigoPedido);
+//            List<Produto> listaCarrinho = produtoService.produtosNoPedido(codigoPedido);
+//            double valorTotal;
+//            double somaProduto;
+//
+//            AtomicReference<Double> valorFrete = new AtomicReference<>(0.0);
+//            String initPoint;
+//            AtomicReference<Integer> cont = new AtomicReference<>(0);
+//
+//            somaProduto = pedido.getValorTotal();
+//
+//            somarFretePorProduto(cep, listaCarrinho, valorFrete, cont);
+//
+//            valorTotal = somaProduto + valorFrete.get();
+//
+//            PedidoReturn returnPedido = new PedidoReturn();
+//            try {
+//                ItemPedido itemPedido = new ItemPedido("HyperXpress Produtos",
+//                        valorTotal,1);
+//
+////                Pagamentos pagamento = new Pagamentos();
+////                initPoint = pagamento.postItem(itemPedido);
+//
+//            }catch (MPException e){
+//                System.err.println(e.getMessage());
+//                return null;
+//            }
+//
+//            return setarInformacoesFinais(returnPedido, pedido, initPoint, valorFrete, valorTotal);
+//        }
         return null;
     }
 }

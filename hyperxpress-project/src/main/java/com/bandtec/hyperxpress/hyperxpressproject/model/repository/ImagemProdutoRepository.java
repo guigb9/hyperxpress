@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ImagemProdutoRepository extends JpaRepository<ImagemProduto, Long> {
-    List<ImagemProduto> findByProdutoAssociadoId(Long idProduto);
+    List<ImagemProduto> findByProdutoAssociadoIdProduto(Long idProduto);
 
-    int countByProdutoAssociadoId(Long idProduto);
+    int countByProdutoAssociadoIdProduto(Long idProduto);
 }

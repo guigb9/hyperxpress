@@ -8,9 +8,8 @@ import java.util.List;
 
 public interface CarrinhoRepository extends JpaRepository<Carrinho, Long> {
     List<Carrinho> findByUsuarioAdicionouId(Long id);
-    List<Carrinho> findByProdutoAssociadoIdAndUsuarioAdicionouId(Long id, Long idUsuario);
-    List<Carrinho> findByProdutoAssociadoId(Long idProduto);
-
+    List<Carrinho> findByProdutoAssociadoIdProdutoAndUsuarioAdicionouId(Long id, Long idUsuario);
+    List<Carrinho> findByProdutoAssociadoIdProduto(Long idProduto);
     @Modifying
-    void deleteByProdutoAssociadoIdAndUsuarioAdicionouId(Long id, Long idUsuario);
+    void deleteByProdutoAssociadoIdProdutoAndUsuarioAdicionouId(Long id, Long idUsuario);
 }

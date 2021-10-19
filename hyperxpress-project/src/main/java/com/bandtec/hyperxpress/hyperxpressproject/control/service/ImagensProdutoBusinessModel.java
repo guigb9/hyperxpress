@@ -17,6 +17,6 @@ public class ImagensProdutoBusinessModel {
     }
 
     public int quantidadeImagensProduto(long id){
-        return imagemProdutoRepository.countByProdutoAssociadoId(id);
+        return imagemProdutoRepository.countByProdutoAssociadoIdProduto(id);
     }
 }

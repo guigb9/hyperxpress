@@ -49,7 +49,7 @@ public class CarrinhoController{
 
     }
 
-    @GetMapping("/carrinho/todos/{idUsuario}")
+    @GetMapping(value = "/carrinho/todos/{idUsuario}")
     public ResponseEntity<List<ProdutoGeralDTO>> getProdutosPorUsuario(@PathVariable Long idUsuario){
         List<Carrinho> produtos = carrinhoService.produtosCarrinhoUsuarioEspecifico(idUsuario);
         if(produtos.isEmpty()){
