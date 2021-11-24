@@ -1,90 +1,45 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.controller;
 
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.ProdutoBusinessModel;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.ProdutoService;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.ProdutoGeralDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.ResponseEntity.status;
-
 @RestController
 @RequestMapping("/vendas")
+@RequiredArgsConstructor
 public class VendaController {
-    @Autowired
-    private ProdutoBusinessModel produtoBusinessModel;
+	private final ProdutoService produtoServiceImpl;
 
-    @GetMapping("/inativos/{idUsuario}")
-    public ResponseEntity getProdutosInativos(@PathVariable Long idUsuario){
-        List<ProdutoGeralDTO> produtosInativos = produtoBusinessModel.pegarProdutosInativos(idUsuario);
-        if(produtosInativos.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(produtosInativos);
-    }
+	@GetMapping(value = "/inativos/{idUsuario}", produces = "application/json")
+	public List<ProdutoGeralDTO> getProdutosInativos(@PathVariable Long idUsuario) {
+		return produtoServiceImpl.pegarProdutosInativos(idUsuario);
+	}
 
-    @GetMapping("/ativos/{idUsuario}")
-    public ResponseEntity getProdutosVendedor(@PathVariable Long idUsuario){
-        List<ProdutoGeralDTO> produtos = produtoBusinessModel.pegarProdutosAtivosUsuario(idUsuario);
-        if(produtos.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(produtos);
-    }
+	@GetMapping(value = "/ativos/{idUsuario}", produces = "application/json")
+	public List<ProdutoGeralDTO> getProdutosVendedor(@PathVariable Long idUsuario) {
+		return produtoServiceImpl.pegarProdutosAtivosUsuario(idUsuario);
+	}
 
-    @GetMapping("/em-andamento/{idUsuario}")
-    public ResponseEntity getProdutosVendedorVendidos(@PathVariable Long idUsuario){
-        List<ProdutoGeralDTO> produtos = produtoBusinessModel.pegarProdutosPedidoEmAndamento(idUsuario);
-        if(produtos.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(produtos);
-    }
+	@GetMapping(value = "/vendidos/{idUsuario}", produces = "application/json")
+	public List<ProdutoGeralDTO> getProdutosVendedorConcluidos(@PathVariable Long idUsuario) {
+		return produtoServiceImpl.pegarProdutosVendidos(idUsuario);
+	}
 
-    @GetMapping("/vendidos/{idUsuario}")
-    public ResponseEntity getProdutosVendedorConcluidos(@PathVariable Long idUsuario){
-        List<ProdutoGeralDTO> produtos = produtoBusinessModel.pegarProdutosVendidos(idUsuario);
-        if(produtos.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(produtos);
-    }
+	@PutMapping("/vender/{idProduto}")
+	public void venderProduto(@PathVariable Long idProduto) {
+		produtoServiceImpl.venderProduto(idProduto);
+	}
 
-    @PutMapping("/vender/{idProduto}")
-    public ResponseEntity venderProduto(@PathVariable Long idProduto){
-        boolean resultadoMudancaStatus = produtoBusinessModel.venderProduto(idProduto);
-        if (resultadoMudancaStatus) {
-            return status(200).build();
-        }
-        return status(400).build();
-    }
+	@PutMapping("/tornarAtivo/{idProduto}")
+	public void tornarProdutoAtivo(@PathVariable Long idProduto) {
+		produtoServiceImpl.tornarAtivo(idProduto);
+	}
 
-    @PutMapping("/tornarAtivo/{idProduto}")
-    public ResponseEntity tornarProdutoAtivo(@PathVariable Long idProduto){
-        boolean resultadoMudancaStatus = produtoBusinessModel.tornarAtivo(idProduto);
-        if (resultadoMudancaStatus) {
-            return status(200).build();
-        }
-        return status(400).build();
-    }
-
-    @PutMapping("/tornarInativo/{idProduto}")
-    public ResponseEntity tornarProdutoInativo(@PathVariable Long idProduto){
-        boolean resultadoMudancaStatus = produtoBusinessModel.tornarInativo(idProduto);
-        if (resultadoMudancaStatus) {
-            return status(200).build();
-        }
-        return status(400).build();
-    }
-
-    @PutMapping("/em-andamento/{idProduto}")
-    public ResponseEntity emAndamento(@PathVariable Long idProduto){
-        boolean resultadoMudancaStatus = produtoBusinessModel.colocarVendaEmAndamento(idProduto);
-        if (resultadoMudancaStatus) {
-            return status(200).build();
-        }
-        return status(400).build();
-    }
+	@PutMapping("/tornarInativo/{idProduto}")
+	public void tornarProdutoInativo(@PathVariable Long idProduto) {
+		produtoServiceImpl.tornarInativo(idProduto);
+	}
 }

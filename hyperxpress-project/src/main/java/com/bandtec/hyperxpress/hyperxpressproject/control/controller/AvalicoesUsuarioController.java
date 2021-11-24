@@ -1,58 +1,41 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.controller;
 
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.AvaliacaoUsuarioRequest;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.AvaliacoesUsuarioService;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.AvaliacoesUsuario;
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.AvaliacoesUsuarioBusinessModel;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.AvaliacaoUsuarioDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import javax.validation.Valid;
 
-import static org.springframework.http.ResponseEntity.*;
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/avaliacoes")
 public class AvalicoesUsuarioController {
-    @Autowired
-    private AvaliacoesUsuarioBusinessModel avaliacoesUsuarioBusinessModel;
 
-    @PostMapping
-    public ResponseEntity postAvaliacao(@Valid @RequestBody AvaliacoesUsuario avaliacao){
-        try {
-            avaliacoesUsuarioBusinessModel.salvarAvaliacao(avaliacao);
-            return status(201).build();
-        }catch (Exception e){
-            System.out.println(e);
-            return status(400).build();
-        }
-    }
+	private final AvaliacoesUsuarioService service;
 
-    @GetMapping("/{idUsuario}")
-    public ResponseEntity<List<AvaliacaoUsuarioDTO>> getAvaliacoesPorUsuario(@Valid @PathVariable Long idUsuario){
-        try {
-            List<AvaliacaoUsuarioDTO> avaliacoesUsuario = avaliacoesUsuarioBusinessModel.avaliacoesPorUsuario(idUsuario);
-            if (avaliacoesUsuario.isEmpty()) {
-                return status(204).build();
-            }
-            return status(200).body(avaliacoesUsuario);
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return status(400).build();
-        }
-    }
+	public AvalicoesUsuarioController(AvaliacoesUsuarioService avaliacoesUsuarioBusinessModel) {
+		this.service = avaliacoesUsuarioBusinessModel;
+	}
 
-    @DeleteMapping("/{idAvaliacao}")
-    public ResponseEntity removerAvaliacao(@PathVariable Long idAvaliacao){
-        try {
-            boolean resultadoRemocao = avaliacoesUsuarioBusinessModel.removerAvaliacao(idAvaliacao);
-            if (resultadoRemocao) {
-                return status(200).build();
-            }
-            return status(204).build();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return status(400).build();
-        }
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public AvaliacoesUsuario post(@Valid @RequestBody AvaliacaoUsuarioRequest request) {
+		AvaliacoesUsuario avaliacao = service.setarInformacoes(request);
+		return service.salvarAvaliacao(avaliacao);
+	}
+
+	@GetMapping(value = "/{idUsuario}", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK)
+	public List<AvaliacaoUsuarioDTO> get(@Valid @PathVariable Long idUsuario) {
+		return service.pegarAvaliacoesPorUsuario(idUsuario);
+	}
+
+	@DeleteMapping("/{idAvaliacao}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Long idAvaliacao) {
+		service.remocaoDeAvaliacao(idAvaliacao);
+	}
 }

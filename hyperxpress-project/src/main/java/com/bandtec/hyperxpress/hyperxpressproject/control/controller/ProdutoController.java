@@ -1,145 +1,111 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.controller;
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.*;
+
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.ImagemRequest;
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.PostagemProdutoRequest;
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.ProdutoDestaque;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.ProdutoService;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.impl.ImagensProdutoService;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.impl.ImagensService;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.ImagemProduto;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Produto;
-import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Usuario;
-import com.bandtec.hyperxpress.hyperxpressproject.view.adapter.ProdutoDestaque;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.ProdutoGeralDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.SneakyThrows;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.List;
 
-import static org.springframework.http.ResponseEntity.*;
+import java.util.Base64;
+
+import static com.bandtec.hyperxpress.hyperxpressproject.configuration.exception.Messages.EMPTY_LIST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
 
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
 
-    @Autowired
-    private ProdutoBusinessModel produtoBusinessModel;
+	private final ProdutoService produtoService;
+	private final ImagensService imagensService;
+	private final ImagensProdutoService imagensProdutoService;
+	private final ModelMapper modelMapper;
 
-    @Autowired
-    private ImagensBusinessModel imagensBusinessModel;
+	public ProdutoController(ProdutoService produtoService, ImagensService imagensService, ImagensProdutoService imagensProdutoService1, ModelMapper modelMapper) {
+		this.produtoService = produtoService;
+		this.imagensService = imagensService;
+		this.imagensProdutoService = imagensProdutoService1;
+		this.modelMapper = modelMapper;
+	}
 
-    @Autowired
-    private UsuarioBusinessModel usuarioBusinessModel;
-
-    @Autowired
-    private SubCategoriaBusinessModel subCategoriaBusinessModel;
-
-    @Autowired
-    private ImagensProdutoBusinessModel imagensProdutoBusinessModel;
-
-
-    @GetMapping
-    public ResponseEntity<List<ProdutoGeralDTO>> getProdutos(){
-        try {
-            List<ProdutoGeralDTO> produtos = produtoBusinessModel.getProdutosAtivos();
-            if (produtos.isEmpty()) {
-                return status(204).build();
-            }
-            return status(200).body(produtos);
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return status(400).build();
-        }
-    }
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoController.class);
 
 
-    @GetMapping("/produto/{id}")
-    public ResponseEntity getProduto(@PathVariable Long id){
-        Produto produto = produtoBusinessModel.pesquisarUnicoProduto(id);
-        if(produto != null){
-            return status(200).body(produtoBusinessModel.toProdutoGeralDTO(produto));
-        }else{
-            return status(204).build();
-        }
-    }
+	@GetMapping(produces = "application/json")
+	public Page<ProdutoGeralDTO> getProdutos(Produto filter, Pageable pageable) {
+		Page<ProdutoGeralDTO> produtos = produtoService.getProdutosAtivos(filter, pageable);
+		if (produtos.isEmpty()) {
+			LOGGER.error(EMPTY_LIST, "produtos");
+			throw new ResponseStatusException(NO_CONTENT);
+		}
+		return produtos;
+	}
 
-    @PostMapping("/imagem/{idProduto}")
-    public ResponseEntity anexarImagensAoProduto(@RequestParam MultipartFile file,
-                                                 @PathVariable long idProduto) throws IOException {
-        Produto produto = produtoBusinessModel.pesquisarUnicoProduto(idProduto);
+	@GetMapping(value = "/{id}", produces = "application/json")
+	public ProdutoGeralDTO getById(@PathVariable Long id) {
+		return produtoService.toProdutoGeralDTO(produtoService.procurarProdutoPeloid(id));
+	}
 
-        if (produto != null){
-            boolean resultadoAnexoImagem = produtoBusinessModel.anexarImagensAoProduto(file,idProduto);
-            if (!resultadoAnexoImagem){
-                return status(204).build();
-            }
 
-            if (imagensProdutoBusinessModel.quantidadeImagensProduto(idProduto) > 4) {
-                return status(400).body("Produto já possui 4 imagens.");
-            }
-            return status(201).build();
-        }
-        return status(404).body("Produto não encontrado");
-    }
+	@SneakyThrows
+	@PutMapping("/imagem/{idProduto}")
+	public void anexarImagensAoProduto(@RequestBody ImagemRequest imagem,
+									   @PathVariable long idProduto) {
+		imagensProdutoService.anexarImagensAoProduto(idProduto, imagem);
+	}
 
-    @PostMapping
-    public ResponseEntity postProduto(@Valid @RequestBody Produto produto) {
-        produto.setNivelDestaque(1);
-        Usuario usuario = usuarioBusinessModel.procurarUsuarioPeloId(produto.getCodigoUsuarioProd().getId());
-        if(usuario != null && subCategoriaBusinessModel.verificarSubcategoriaExiste(produto.getSubCategoria().getId())){
-            produtoBusinessModel.salvarProduto(produto);
-            return status(201).body(produto.getIdProduto());
-        }
-        return status(204).body("Usuário ou subCategoria não existem");
-    }
 
-    @PutMapping("/destacar/{idProduto}")
-    public ResponseEntity destacarProduto(@RequestBody ProdutoDestaque produtoDestaque,
-                                          @PathVariable Long idProduto){
-        Produto produto = produtoBusinessModel.verificarProdutoPresente(idProduto);
-        if(produto != null){
-            produtoBusinessModel.destacarProduto(produto, produtoDestaque);
-            return status(200).build();
-        }
-        return status(204).body("Produto não existe!");
-    }
+	@PostMapping
+	@ResponseStatus(CREATED)
+	public Produto postProduto(@Valid @RequestBody PostagemProdutoRequest request) {
+		Produto produto = toProduto(request);
+		return produtoService.setarInfoParaPostagemProduto(produto);
+	}
 
-    @DeleteMapping("/excluir/{idProduto}")
-    public ResponseEntity removeProduto(@PathVariable Long idProduto, @RequestParam String email){
+	private Produto toProduto(PostagemProdutoRequest request) {
+		return modelMapper.map(request, Produto.class);
+	}
 
-        String removeuProduto = produtoBusinessModel.removeProduto(idProduto,email);
-        if (removeuProduto.equals("removeu")){
-            return status(200).build();
-        }
-        else{
-            if (removeuProduto.equals("nao-e-possível-excluir-um-produto-associado-a-um-pedido")){
-                return status(400).body(removeuProduto);
-            }
-            else if (removeuProduto.equals("nao-e-possível-excluir-produtos-de-outro-usuario")){
-                return status(401).body(removeuProduto);
-            }
-            else {
-                return status(204).body(removeuProduto);
-            }
-        }
-    }
 
-    @GetMapping("/imagem/{id}/{imagemEspecifica}")
-    public ResponseEntity getProdutoImagem(@PathVariable Long id, @PathVariable int imagemEspecifica) {
-        ImagemProduto imagemOptional = produtoBusinessModel.pegarImagem(id,imagemEspecifica);
+	@PutMapping("/destacar/{idProduto}")
+	@ResponseStatus(NO_CONTENT)
+	public void destacarProduto(@RequestBody ProdutoDestaque request,
+	                            @PathVariable Long idProduto) {
+		Produto produto = produtoService.procurarProdutoPeloid(idProduto);
+		produtoService.destacarProduto(produto, request.getNivelDestaque());
+	}
 
-        if (imagemOptional != null) {
+	@DeleteMapping("/{idProduto}")
+	@ResponseStatus(NO_CONTENT)
+	public void removeProduto(@PathVariable Long idProduto) {
+		produtoService.removeProduto(idProduto);
+	}
 
-            byte[] imagem =imagemOptional.getImagem();
+	@GetMapping(value = "/imagem/{id}/{imagemEspecifica}", produces = {"image/jpeg"})
+	public byte[] getProdutoImagem(@PathVariable Long id, @PathVariable int imagemEspecifica) {
+		ImagemProduto imagemOptional = produtoService.pegarImagem(id, imagemEspecifica);
+		return Base64.getDecoder().decode(imagemOptional.getImagem());
+	}
 
-            return status(200).header("content-type", "image/jpeg").body(imagem);
-
-        }
-        return status(204).build();
-
-    }
-
-    @DeleteMapping("/imagem/{id}")
-    public ResponseEntity deleteImgById(@PathVariable Long id){
-        imagensBusinessModel.removerImagemPeloId(id);
-        return status(200).build();
-    }
+	@DeleteMapping("/imagem/{id}")
+	@ResponseStatus(NO_CONTENT)
+	public void deleteImgById(@PathVariable Long id) {
+		imagensService.removerImagemPeloId(id);
+	}
 }

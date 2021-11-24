@@ -1,36 +1,41 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.controller;
 
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.FavoritosBusinessModel;
+import com.bandtec.hyperxpress.hyperxpressproject.configuration.exception.EmptyException;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.FavoritosService;
+import com.bandtec.hyperxpress.hyperxpressproject.model.entity.FavoritosUsuario;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.ProdutoGeralDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-import static org.springframework.http.ResponseEntity.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/favoritos")
+@RequiredArgsConstructor
 public class FavoritosController {
 
-    @Autowired
-    private FavoritosBusinessModel favoritosBusinessModel;
+	private final FavoritosService service;
 
-    @PostMapping
-    public ResponseEntity postFavorito(@RequestParam String email, @PathVariable Long idProduto){
-         if(favoritosBusinessModel.salvarFavorito(email, idProduto)) return status(201).build();
-        return status(404).body("Usuário ou produto inexistente");
-    }
+	@PostMapping("/{idUsuario}/{idProduto}")
+	@ResponseStatus(HttpStatus.CREATED)
+	public FavoritosUsuario postFavorito(@PathVariable Long idUsuario, @PathVariable Long idProduto) {
+		return service.salvarFavorito(idUsuario, idProduto);
+	}
 
-    @GetMapping
-    public ResponseEntity getFavoritosUsuario(@RequestParam String email){
-        List<ProdutoGeralDTO> favoritosUsuario = favoritosBusinessModel.favoritosPorUsuario(email);
-        if(favoritosUsuario.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(favoritosUsuario);
-    }
+	@GetMapping(value = "/{idUsuario}", produces = "application/json")
+	public List<ProdutoGeralDTO> getFavoritosUsuario(@PathVariable Long idUsuario) {
+		List<ProdutoGeralDTO> favoritos = service.favoritosPorUsuario(idUsuario);
+		if (favoritos.isEmpty()) {
+			throw new EmptyException("Favoritos usuário de id " + idUsuario);
+		}
+		return favoritos;
+	}
 
-
+	@DeleteMapping("/{idUsuario}/{idProduto}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removerFavorito(@PathVariable Long idUsuario, @PathVariable Long idProduto){
+		 service.removerFavorito(idUsuario,idProduto);
+	}
 
 }

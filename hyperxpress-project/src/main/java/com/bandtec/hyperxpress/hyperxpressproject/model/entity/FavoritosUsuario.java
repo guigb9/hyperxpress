@@ -1,41 +1,23 @@
 package com.bandtec.hyperxpress.hyperxpressproject.model.entity;
 
+import lombok.*;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class FavoritosUsuario {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long idFavorito;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idFavorito;
+	@ManyToOne
+	private Produto produtoFavorito;
 
-    @ManyToOne
-    private Produto produtoFavorito;
-
-    @ManyToOne
-    private Usuario usuarioFavoritou;
-
-    public Long getIdFavorito() {
-        return idFavorito;
-    }
-
-    public void setIdFavorito(Long idFavorito) {
-        this.idFavorito = idFavorito;
-    }
-
-    public Produto getProdutoFavorito() {
-        return produtoFavorito;
-    }
-
-    public void setProdutoFavorito(Produto produtoFavorito) {
-        this.produtoFavorito = produtoFavorito;
-    }
-
-    public Usuario getUsuarioFavoritou() {
-        return usuarioFavoritou;
-    }
-
-    public void setUsuarioFavoritou(Usuario usuarioFavoritou) {
-        this.usuarioFavoritou = usuarioFavoritou;
-    }
+	@ManyToOne
+	private Usuario usuarioFavoritou;
 }

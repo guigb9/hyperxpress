@@ -1,139 +1,62 @@
 package com.bandtec.hyperxpress.hyperxpressproject.control.controller;
 
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.EnderecoBusinessModel;
-import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Endereco;
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.CadastroUsuarioRequest;
+import com.bandtec.hyperxpress.hyperxpressproject.control.request.ImagemRequest;
+import com.bandtec.hyperxpress.hyperxpressproject.control.service.UsuarioService;
 import com.bandtec.hyperxpress.hyperxpressproject.model.entity.Usuario;
-import com.bandtec.hyperxpress.hyperxpressproject.view.dto.CadastroUsuarioDTO;
 import com.bandtec.hyperxpress.hyperxpressproject.view.adapter.Login;
-import com.bandtec.hyperxpress.hyperxpressproject.control.service.UsuarioBusinessModel;
 import com.bandtec.hyperxpress.hyperxpressproject.view.dto.UsuarioLoginDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequestMapping("/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
-    @Autowired
-    private UsuarioBusinessModel usuarioBusinessModel;
+	private final UsuarioService usuarioBusinessModel;
 
-    @Autowired
-    private EnderecoBusinessModel enderecoService;
+	@GetMapping(produces = "application/json")
+	public Page<Usuario> getUsuarios(@PageableDefault() Pageable pageable) {
+		return usuarioBusinessModel.pegarTodosUsuarios(pageable);
+	}
 
-    @GetMapping
-    public ResponseEntity getUsuarios(){
-        List<Usuario> usuarios = usuarioBusinessModel.pegarTodosUsuarios();
-        if(usuarios.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(usuarios.stream()
-                .map(u -> usuarioBusinessModel.toUsuarioLoginDTO(u))
-                .collect(Collectors.toList()));
-    }
+	@PostMapping("/imagem/{idUsuario}")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void postUsuarioImg(@RequestBody(required = false) ImagemRequest imagem, @PathVariable Long idUsuario) throws IOException {
+		usuarioBusinessModel.cadastrarImagemUsuario(idUsuario, imagem);
+	}
 
-    @GetMapping("/enderecos")
-    public ResponseEntity getEnderecos(){
-        List<Endereco> enderecos = enderecoService.enderecos();
-        if(enderecos.isEmpty()) {
-            return status(204).build();
-        }
-        return status(200).body(enderecos);
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public void postUsuario(@Valid @RequestBody CadastroUsuarioRequest cadastro) {
+		usuarioBusinessModel.salvarUsuario(cadastro);
+	}
 
-    @GetMapping("/endereco/{cep}/{numero}")
-    public ResponseEntity getEnderecoCepNumero(@PathVariable String cep, @PathVariable String numero){
-        List<Endereco> enderecos = enderecoService.enderecoNumeroCep(cep, numero);
-        if(enderecos.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(enderecos);
+	@PostMapping("/login")
+	public UsuarioLoginDTO login(@Valid @RequestBody Login login) {
+		return usuarioBusinessModel.login(login.getEmail(), login.getSenha());
+	}
 
-    }
+	@GetMapping(value = "/perfil/{id}", produces = {"image/jpeg"})
+	public byte[] getImagemUsuario(@PathVariable Long id) {
+		return usuarioBusinessModel.pegarImagemUsuario(id);
+	}
 
-    @PostMapping("/imagem/{idUsuario}")
-    public ResponseEntity postUsuarioImg(@RequestParam(required = false)
-                                                     Optional<MultipartFile> file,
-                                         @PathVariable Long idUsuario) throws IOException{
+	@GetMapping(value = "/verificar/{email}", produces = "application/json")
+	public void verficarEmailIgual(@PathVariable String email) {
+		usuarioBusinessModel.verificarSeEmailExiste(email);
+	}
 
-        if(file.isPresent()){
-
-            usuarioBusinessModel.cadastrarimagemUsuario(idUsuario, file);
-
-            return ResponseEntity.status(201).build();
-        }
-             return ResponseEntity.status(204).body("Enviar arquivo");
-
-    }
-
-
-    @PostMapping
-    public ResponseEntity postUsuario(@Valid @RequestBody CadastroUsuarioDTO cadastro){
-        try {
-            boolean result = usuarioBusinessModel.salvarUsuario(cadastro);
-            if (result) {
-                return status(201).build();
-            }
-            return status(400).body("O email já está cadastrado no sistema!");
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return status(400).build();
-        }
-    }
-
-
-
-    @PostMapping("/login")
-    public ResponseEntity<UsuarioLoginDTO> login(@Valid @RequestBody Login login){
-        try {
-            UsuarioLoginDTO user = usuarioBusinessModel.login(login.getEmail(), login.getSenha());
-            if (user != null) {
-                return ResponseEntity.status(200).body(user);
-            }
-            return status(204).build();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            return status(400).build();
-        }
-    }
-
-
-
-    @GetMapping("/perfil/{id}")
-    public ResponseEntity getImagemUsuario(@PathVariable Long id){
-
-        if(usuarioBusinessModel.pegarImagemUsuario(id).length <= 0){
-            return status(204).build();
-        }
-        return status(200).header("content-type", "image/jpeg").body(usuarioBusinessModel.pegarImagemUsuario(id));
-
-    }
-
-    @GetMapping("/endereco/{idUsuario}")
-    public ResponseEntity getEnderecoIdUsuario(@PathVariable Long idUsuario){
-        List<Endereco> endereco = enderecoService.procurarEnderecoPeloCodigoUsuario(idUsuario);
-        if(endereco.isEmpty()){
-            return status(204).build();
-        }
-        return status(200).body(endereco);
-    }
-
-    @GetMapping("/verificar/{email}")
-    public ResponseEntity verficarEmailIgual(@PathVariable String email){
-        boolean verificacao = usuarioBusinessModel.verificarSeEmailExiste(email);
-        if(verificacao){
-            return status(200).build();
-        }
-        return status(400).build();
-    }
-
-    //adiuahbiuwhdiauwhdiua
+	@PutMapping(value = "/{idUsuario}")
+	@ResponseStatus(HttpStatus.OK)
+	public void atualizaInformacoesUsuario(@PathVariable Long idUsuario, @RequestBody CadastroUsuarioRequest usuario){
+		usuarioBusinessModel.atualizarInformacaoUsuario(idUsuario, usuario);
+	}
 }
